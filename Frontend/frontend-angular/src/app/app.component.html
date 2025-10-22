@@ -1,0 +1,33 @@
+<div class="container">
+  <h1>Dashboard de Usuarios de Molina</h1>
+
+  <div class="form-container">
+    <h2>Crear Nuevo Usuario</h2>
+    <form (ngSubmit)="createUser()">
+      <input
+        type="text"
+        placeholder="Nombre"
+        [(ngModel)]="newUser.name"
+        name="name"
+        required>
+      <input
+        type="email"
+        placeholder="Email"
+        [(ngModel)]="newUser.email"
+        name="email"
+        required>
+      <button type="submit" class="btn-create">Crear</button>
+    </form>
+  </div>
+
+  <h2>Lista de Usuarios</h2>
+  <ul>
+    <li *ngFor="let user of users">
+      <span>
+        <strong>{{ user.name }}</strong> ({{ user.email }})
+      </span>
+      <button (click)="deleteUser(user.id)" class="btn-delete">Eliminar</button>
+      <button (click)="updateUser(user)" class="btn-edit">Editar</button>
+    </li>
+  </ul>
+</div>
