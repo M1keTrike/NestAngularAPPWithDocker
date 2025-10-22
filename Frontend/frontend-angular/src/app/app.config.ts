@@ -4,6 +4,6 @@ import { provideHttpClient } from '@angular/common/http'; // 1. Importar
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient() 
+    provideHttpClient()
   ]
 };

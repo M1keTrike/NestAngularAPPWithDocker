@@ -2,3 +2,7 @@
 !.env.example
 node_modules/
 dist/
+node_modules/
+Dockerfile
+docker-compose.yml
+environments/

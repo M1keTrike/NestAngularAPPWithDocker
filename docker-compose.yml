@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+  # --- 1. SERVICIO FRONTEND (Angular) ---
+  frontend:
+    build:
+      context: ./Frontend/frontend-angular # Carpeta donde está el Dockerfile
+      dockerfile: Dockerfile
+    container_name: frontend-Molina # Requisito: Nombre de contenedor
+    ports:
+      - "80:80" # Expone puerto 80 del host (EC2) al 80 del contenedor
+    networks:
+      - microservicios-net
+    depends_on:
+      - backend # El frontend no arranca hasta que el backend esté listo
+    restart: always
+    environment:
+      - NODE_ENV=production
+
+  # --- 2. SERVICIO BACKEND (NestJS API) ---
+  backend:
+    build:
+      context: ./Backend/backend-nestjs
+      dockerfile: Dockerfile
+    container_name: api-Molina # Requisito: Nombre de contenedor
+    ports:
+      - "5000:5000" # Expone puerto 5000 del host (EC2) al 5000 del contenedor
+    networks:
+      - microservicios-net
+    env_file:
+      - ./.env # Carga las variables de entorno desde el archivo .env
+    depends_on:
+      database: # El backend espera a que la base de datos esté "saludable"
+        condition: service_healthy
+    restart: always
+
+  # --- 3. SERVICIO BASE DE DATOS (PostgreSQL) ---
+  database:
+    image: postgres:15-alpine # Imagen oficial de Postgres
+    container_name: db-Molina # Requisito: Nombre de contenedor
+
+    # ¡NOTA DE SEGURIDAD IMPORTANTE!
+    # NO exponemos el puerto 5432 al host (EC2) con "ports:".
+    # Hacerlo lo expondría a todo Internet.
+    # El backend se conectará usando la red interna "microservicios-net".
+
+    networks:
+      - microservicios-net
+    environment:
+      # Usa las variables del .env para configurar la BD
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      # Requisito: Volumen nombrado explícitamente para persistencia
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # Comprueba si Postgres está listo para aceptar conexiones
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+# --- REDES Y VOLÚMENES ---
+
+# Define la red interna
+networks:
+  microservicios-net: # Requisito: Red interna para comunicación por nombre
+    driver: bridge
+
+# Define el volumen nombrado
+volumes:
+  postgres-data: # Requisito: Volumen nombrado (no anónimo)
+    driver: local
