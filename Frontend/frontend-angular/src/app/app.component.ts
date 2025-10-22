@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { User } from './User';
-import { environment } from '../environments/enviroment';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
