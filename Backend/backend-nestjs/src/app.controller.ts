@@ -13,6 +13,6 @@ export class AppController {
 
   @Get('Molina')
   getNombreCompleto(): object {
-    return { nombre_completo: 'Miguel Molina' };
+    return { nombre_completo: 'Miguel Ángel Molina Gómez' };
   }
 }
